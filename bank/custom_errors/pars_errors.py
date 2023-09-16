@@ -1,4 +1,4 @@
-from loggs.loggers import logger_pars_errors
+from bank.loggs.loggers import logger_pars_errors
 
 
 class ParsErrors(Exception):

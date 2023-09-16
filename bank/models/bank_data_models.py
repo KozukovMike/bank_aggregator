@@ -1,4 +1,3 @@
-from pydantic import BaseModel
 from dataclasses import dataclass
 
 
@@ -19,7 +18,7 @@ class Credits:
 
 
 @dataclass
-class Insurance:
+class Insurances:
     bank: str
     name: str
     info: str

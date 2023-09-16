@@ -22,3 +22,11 @@ handler2.setFormatter(formatter2)
 logger_done_pars.addHandler(handler2)
 logger_done_pars.propagate = False
 
+
+logger_bd = logging.getLogger('logger_bd')
+handler3 = logging.FileHandler('bd.log', encoding='utf-8')
+handler3.setLevel(logging.ERROR)
+formatter3 = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+handler3.setFormatter(formatter3)
+logger_bd.addHandler(handler3)
+logger_bd.propagate = False

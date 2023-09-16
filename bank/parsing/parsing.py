@@ -4,9 +4,9 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from abc import ABC, abstractmethod
 from typing import List
-from models.bank_data_models import Cards, Credits, Insurance, Deposits
-from custom_errors.pars_errors import ParsErrors
-from loggs.loggers import logger_done_pars
+from bank.models.bank_data_models import Cards, Credits, Insurances, Deposits
+from bank.custom_errors.pars_errors import ParsErrors
+from bank.loggs.loggers import logger_done_pars
 
 
 class ParsBank(ABC):
@@ -62,7 +62,7 @@ class ParsBank(ABC):
 
     @staticmethod
     @abstractmethod
-    def get_insurance() -> List[Insurance]:
+    def get_insurance() -> List[Insurances]:
         """
         Get insurance from bank
         :return list of instances of Insurance class
@@ -148,7 +148,7 @@ class AlfaBank(ParsBank):
         return credit
 
     @staticmethod
-    def get_insurance() -> List[Insurance]:
+    def get_insurance() -> List[Insurances]:
         url = 'https://www.alfabank.by/insurance/'
         soup = ParsBank.get_soup_by_url(url)
         links = ParsBank.get_data(
@@ -172,7 +172,7 @@ class AlfaBank(ParsBank):
                     buf_soup = BeautifulSoup(str(i), 'lxml')
                     info1.append(buf_soup.div.p.get_text(strip=True))
                 info = info1
-                instance = Insurance(
+                instance = Insurances(
                     bank='AlfaBank',
                     name=soup.find('h1', class_='page-top-section__title h0').text,
                     info=' '.join(info),
@@ -218,5 +218,4 @@ class AlfaBank(ParsBank):
         return deposits
 
 
-a = AlfaBank.get_deposits()
-print(len(a))
+# print(len(a))
