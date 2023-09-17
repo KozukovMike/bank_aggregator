@@ -1,3 +1,5 @@
+import os
+
 import psycopg2
 import pandas as pd
 from dotenv import load_dotenv
@@ -12,6 +14,7 @@ from bank.bd.CRUD.insurance import CRUDInsurance
 from bank.bd.CRUD.deposit import CRUDDeposit
 from bank.models.bd_models import Bank, Card, Credit, Insurance, Deposit
 from bank.models.bank_data_models import Deposits
+from bank.statements.sql_query import sql_bank, sql_deposit, sql_card, sql_credit, sql_insurance
 
 
 load_dotenv()
@@ -48,3 +51,38 @@ class PostgresClient(DBClient):
         except Exception as e:
             print(e)
             logger_bd.error(f'PostgresClient.to_bd: error: {e}')
+
+    @staticmethod
+    def from_bd(table_name: str) -> pd.DataFrame:
+        try:
+            USER = os.getenv('USER')
+            PASSWORD = os.getenv('PASSWORD')
+            HOST = os.getenv('HOST')
+            PORT = os.getenv('PORT')
+            conn = psycopg2.connect(
+                user=USER,
+                password=PASSWORD,
+                host=HOST,
+                port=PORT,
+            )
+        except Exception as e:
+            logger_bd.error(f'PostgresClient.from_bd, connection error: error: {e}')
+        try:
+            if table_name == 'bank':
+                logger_bd.info('table_name == bank')
+                return pd.read_sql(sql=sql_bank, con=conn)
+            elif table_name == 'deposit':
+                print('df')
+                logger_bd.info('table_name == deposit')
+                return pd.read_sql(sql=sql_deposit, con=conn)
+            elif table_name == 'card':
+                logger_bd.info('table_name == card')
+                return pd.read_sql(sql=sql_card, con=conn)
+            elif table_name == 'credit':
+                logger_bd.info('table_name == credit')
+                return pd.read_sql(sql=sql_credit, con=conn)
+            elif table_name == 'insurance':
+                logger_bd.info('table_name == insurance')
+                return pd.read_sql(sql=sql_insurance, con=conn)
+        except Exception as e:
+            pass

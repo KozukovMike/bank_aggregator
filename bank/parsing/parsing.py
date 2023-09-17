@@ -106,7 +106,7 @@ class AlfaBank(ParsBank):
                     bank='AlfaBank',
                     name=soup.find('h1', class_='page-top-section__title h0').text,
                     info=' '.join(info),
-                    link=link,
+                    link=href,
                 )
                 logger_done_pars.info(f'AlfaBank.get_cards() - {instance.name}')
                 cards.append(instance)
@@ -139,7 +139,7 @@ class AlfaBank(ParsBank):
                     bank='AlfaBank',
                     name=soup.find('h1', class_='page-top-section__title h0').text,
                     info=' '.join(info),
-                    link=link,
+                    link=href,
                 )
                 credit.append(instance)
                 logger_done_pars.info(f'AlfaBank.get_credits() - {instance.name}')
@@ -176,7 +176,7 @@ class AlfaBank(ParsBank):
                     bank='AlfaBank',
                     name=soup.find('h1', class_='page-top-section__title h0').text,
                     info=' '.join(info),
-                    link=link,
+                    link=href,
                     )
                 insurance.append(instance)
                 logger_done_pars.info(f'AlfaBank.get_insurance() - {instance.name}')
@@ -209,7 +209,7 @@ class AlfaBank(ParsBank):
                     bank='AlfaBank',
                     name=soup.find('h1', class_='page-top-section__title h0').text,
                     info=' '.join(info),
-                    link=link,
+                    link=href,
                 )
                 deposits.append(instance)
                 logger_done_pars.info(f'AlfaBank.get_deposits() - {instance.name}')
@@ -218,4 +218,129 @@ class AlfaBank(ParsBank):
         return deposits
 
 
-# print(len(a))
+class Belveb(ParsBank):
+
+    @staticmethod
+    def get_cards() -> List[Cards]:
+        url = 'https://www.belveb.by/cards/'
+        soup = ParsBank.get_soup_by_url(url)
+        links = ParsBank.get_data(
+            soup=soup,
+            class_name='card-list-line__item-link',
+            tag_name='a',
+        )
+        links = list(map(lambda x: x.get('href'), links))
+        cards = []
+        for link in links:
+            href = url[:-7] + link
+            soup = ParsBank.get_soup_by_url(href)
+            try:
+                info = ParsBank.get_data(
+                    soup=soup,
+                    class_name='slide-top__text',
+                    tag_name='div',
+                )
+                info = list(map(lambda x: x.text.strip(), info))
+                print(soup.find('h1', class_='hero-block__title h1 flc').text)
+                print(''.join(info))
+                instance = Cards(
+                    bank='Belveb',
+                    name=soup.find('h1', class_='hero-block__title h1 flc').text,
+                    info=' '.join(info),
+                    link=href,
+                )
+                cards.append(instance)
+                logger_done_pars.info(f'Belveb.get_cards() - {instance.name}')
+            except Exception as e:
+                ParsErrors.write_to_log(e=e, text='parsing.py Belveb.get_cards()')
+        return cards
+
+    @staticmethod
+    def get_credit() -> List[Credits]:
+        url = 'https://www.belveb.by/credits/'
+        soup = ParsBank.get_soup_by_url(url)
+        links = ParsBank.get_data(
+            soup=soup,
+            class_name='card-list-line__item-link',
+            tag_name='a',
+        )
+        links = list(map(lambda x: x.get('href'), links))
+        credit = []
+        for link in links:
+            href = url[:-9] + link
+            soup = ParsBank.get_soup_by_url(href)
+            try:
+                info = ParsBank.get_data(
+                    soup=soup,
+                    class_name='h2',
+                    tag_name='div',
+                )
+                info = list(map(lambda x: x.text.strip(), info))
+                info1 = ParsBank.get_data(
+                    soup=soup,
+                    class_name='cards-deposit__text',
+                    tag_name='div',
+                )
+                info1 = list(map(lambda x: x.text.strip(), info1))
+                info = [i + ' ' + j for i, j in zip(info, info1)]
+                instance = Credits(
+                    bank='Belveb',
+                    name=soup.find('h1', class_='hero-block__title h1 flc').text,
+                    info=' '.join(info),
+                    link=href,
+                )
+                credit.append(instance)
+                logger_done_pars.info(f'Belveb.get_credit() - {instance.name}')
+            except Exception as e:
+                ParsErrors.write_to_log(e=e, text='parsing.py Belveb.get_credit()')
+        return credit
+
+    @staticmethod
+    def get_deposits() -> List[Deposits]:
+        url = 'https://www.belveb.by/deposits/'
+        soup = ParsBank.get_soup_by_url(url)
+        links = ParsBank.get_data(
+            soup=soup,
+            class_name='card-list-line__item-link',
+            tag_name='a',
+        )
+        links = list(map(lambda x: x.get('href'), links))
+        deposits = []
+        for link in links:
+            href = url[:-10] + link
+            soup = ParsBank.get_soup_by_url(href)
+            try:
+                info = ParsBank.get_data(
+                    soup=soup,
+                    class_name='h2',
+                    tag_name='div',
+                )
+                info = list(map(lambda x: x.text.strip(), info))
+                info1 = ParsBank.get_data(
+                    soup=soup,
+                    class_name='cards-deposit__text',
+                    tag_name='div',
+                )
+                info1 = list(map(lambda x: x.text.strip(), info1))
+                print(soup.find('h1', class_='hero-block__title h1 flc').text)
+                info = [i + ' ' + j for i, j in zip(info, info1)]
+                print(''.join(info))
+                instance = Deposits(
+                    bank='Belveb',
+                    name=soup.find('h1', class_='hero-block__title h1 flc').text,
+                    info=' '.join(info),
+                    link=href,
+                )
+                deposits.append(instance)
+                logger_done_pars.info(f'Belveb.get_credit() - {instance.name}')
+            except Exception as e:
+                ParsErrors.write_to_log(e=e, text='parsing.py Belveb.get_credit()')
+        return deposits
+
+
+class VTB(ParsBank):
+    pass
+
+
+a = Belveb.get_deposits()
+print(len(a))

@@ -6,7 +6,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(level
 # Создание и настройка логгера для logger_pars_errors
 logger_pars_errors = logging.getLogger('logger_pars_errors')
 handler1 = logging.FileHandler('errors.log', encoding='utf-8')
-handler1.setLevel(logging.ERROR)
+handler1.setLevel(logging.INFO)
 formatter1 = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 handler1.setFormatter(formatter1)
 logger_pars_errors.addHandler(handler1)
@@ -25,7 +25,7 @@ logger_done_pars.propagate = False
 
 logger_bd = logging.getLogger('logger_bd')
 handler3 = logging.FileHandler('bd.log', encoding='utf-8')
-handler3.setLevel(logging.ERROR)
+handler3.setLevel(logging.INFO)
 formatter3 = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 handler3.setFormatter(formatter3)
 logger_bd.addHandler(handler3)
