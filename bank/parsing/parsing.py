@@ -380,3 +380,5 @@ class VTB(ParsBank):
                 ParsErrors.write_to_log(e=e, text='parsing.py Belveb.get_cards()')
         return cards
 
+
+print(VTB.get_credits())
