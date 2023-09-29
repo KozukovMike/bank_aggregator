@@ -322,9 +322,7 @@ class Belveb(ParsBank):
                     tag_name='div',
                 )
                 info1 = list(map(lambda x: x.text.strip(), info1))
-                print(soup.find('h1', class_='hero-block__title h1 flc').text)
                 info = [i + ' ' + j for i, j in zip(info, info1)]
-                print(''.join(info))
                 instance = Deposits(
                     bank='Belveb',
                     name=soup.find('h1', class_='hero-block__title h1 flc').text,
@@ -341,6 +339,47 @@ class Belveb(ParsBank):
 class VTB(ParsBank):
     pass
 
+    @staticmethod
+    def get_credits() -> List[Cards]:
+        url = 'https://www.vtb.by/kredity#vtb_all'
+        soup = ParsBank.get_soup_by_url(url)
+        links = ParsBank.get_data(
+            soup=soup,
+            class_name='vtb-button vtb-grid-button vtb-button--light light',
+            tag_name='a',
+        )
+        links = set(list(map(lambda x: x.get('href'), links)))
+        cards = []
+        for link in links:
+            href = url[:19] + link
+            soup = ParsBank.get_soup_by_url(href)
+            try:
+                info = ParsBank.get_data(
+                    soup=soup,
+                    class_name='platon-services-card',
+                    tag_name='div',
+                )
+                info = list(map(lambda x: x.text.strip(), info))
+                if not info:
+                    info = soup.find_all('li')
+                    info = list(map(lambda x: x.text.strip(), info))
+                name = soup.find('div', class_='platon-hero-block-text')
+                if not name:
+                    name = soup.find('div', class_='vtb-hero-default-block-text vtb-link-arrow').find('h1').text
+                else:
+                    name = name.find('h1').text
+                instance = Cards(
+                    bank='Belveb',
+                    name=name,
+                    info=' '.join(info),
+                    link=href,
+                )
+                cards.append(instance)
+                logger_done_pars.info(f'Belveb.get_cards() - {instance.name}')
+            except Exception as e:
+                ParsErrors.write_to_log(e=e, text='parsing.py Belveb.get_cards()')
+        return cards
 
-a = Belveb.get_deposits()
+
+a = VTB.get_credits()
 print(len(a))
