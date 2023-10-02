@@ -1,10 +1,10 @@
 from sqlalchemy import select, update, delete
 from sqlalchemy.exc import IntegrityError
 
-from bank.models.bd_models import create_session, Bank
+from models.bd_models import create_session, User
 
 
-class CRUDBank:
+class CRUDUser:
 
     @staticmethod
     @create_session
@@ -22,8 +22,8 @@ class CRUDBank:
     @create_session
     def get(instance_id, session=None):
         instance = session.execute(
-            select(Bank)
-            .where(Bank.id == instance_id)
+            select(User)
+            .where(User.user_id == instance_id)
         )
         instance = instance.first()
         if instance:
@@ -31,10 +31,10 @@ class CRUDBank:
 
     @staticmethod
     @create_session
-    def get_by_bank(instance, session=None):
+    def get_by_username(instance, session=None):
         instance = session.execute(
-            select(Bank)
-            .where(Bank.name == instance)
+            select(User)
+            .where(User.username == instance)
         )
         instance = instance.first()
         if instance:
@@ -44,8 +44,8 @@ class CRUDBank:
     @create_session
     def all(session=None):
         instances = session.execute(
-            select(Bank)
-            .order_by(Bank.id)
+            select(User)
+            .order_by(User.user_id)
         )
         return [i[0] for i in instances]
 
@@ -55,8 +55,8 @@ class CRUDBank:
         instance = instance.__dict__
         del instance['_saUrl_instance_state']
         session.execute(
-            update(Bank)
-            .where(Bank.id == instance['id'])
+            update(User)
+            .where(User.user_id == instance['user_id'])
             .values(**instance)
         )
         try:
@@ -70,7 +70,16 @@ class CRUDBank:
     @create_session
     def delete(instance_id, session=None):
         session.execute(
-            delete(Bank)
-            .where(Bank.id == instance_id)
+            delete(User)
+            .where(User.user_id == instance_id)
+        )
+        session.commit()
+
+    @staticmethod
+    @create_session
+    def delete_by_username(instance_username, session=None):
+        session.execute(
+            delete(User)
+            .where(User.username == instance_username)
         )
         session.commit()

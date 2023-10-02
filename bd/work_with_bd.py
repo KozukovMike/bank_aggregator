@@ -4,17 +4,11 @@ import psycopg2
 import pandas as pd
 from dotenv import load_dotenv
 from abc import ABC, abstractmethod
-from typing import List, Iterable, Any
+from typing import Iterable, Any
 
-from bank.loggs.loggers import logger_bd, logger_done_pars
-from bank.bd.CRUD.bank import CRUDBank
-from bank.bd.CRUD.card import CRUDCard
-from bank.bd.CRUD.credit import CRUDCredit
-from bank.bd.CRUD.insurance import CRUDInsurance
-from bank.bd.CRUD.deposit import CRUDDeposit
-from bank.models.bd_models import Bank, Card, Credit, Insurance, Deposit
-from bank.models.bank_data_models import Deposits
-from bank.statements.sql_query import sql_bank, sql_deposit, sql_card, sql_credit, sql_insurance
+from loggs.loggers import logger_bd
+from bd.CRUD_Bank.bank import CRUDBank
+from statements.sql_query import sql_bank, sql_deposit, sql_card, sql_credit, sql_insurance
 
 
 load_dotenv()

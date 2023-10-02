@@ -1,9 +1,9 @@
 from sqlalchemy import select, update, delete
 from sqlalchemy.exc import IntegrityError
+from models.bd_models import create_session, Role
 
-from bank.models.bd_models import create_session, Deposit
 
-class CRUDDeposit:
+class CRUDRole:
 
     @staticmethod
     @create_session
@@ -21,8 +21,8 @@ class CRUDDeposit:
     @create_session
     def get(instance_id, session=None):
         instance = session.execute(
-            select(Deposit)
-            .where(Deposit.id == instance_id)
+            select(Role)
+            .where(Role.role_id == instance_id)
         )
         instance = instance.first()
         if instance:
@@ -30,10 +30,10 @@ class CRUDDeposit:
 
     @staticmethod
     @create_session
-    def get_by_name(instance, session=None):
+    def get_by_name(instance_name, session=None):
         instance = session.execute(
-            select(Deposit)
-            .where(Deposit.name == instance)
+            select(Role)
+            .where(Role.name == instance_name)
         )
         instance = instance.first()
         if instance:
@@ -43,8 +43,8 @@ class CRUDDeposit:
     @create_session
     def all(session=None):
         instances = session.execute(
-            select(Deposit)
-            .order_by(Deposit.id)
+            select(Role)
+            .order_by(Role.role_id)
         )
         return [i[0] for i in instances]
 
@@ -54,8 +54,8 @@ class CRUDDeposit:
         instance = instance.__dict__
         del instance['_sa_instance_state']
         session.execute(
-            update(Deposit)
-            .where(Deposit.id == instance['id'])
+            update(Role)
+            .where(Role.role_id == instance['role_id'])
             .values(**instance)
         )
         try:
@@ -69,7 +69,13 @@ class CRUDDeposit:
     @create_session
     def delete(instance_id, session=None):
         session.execute(
-            delete(Deposit)
-            .where(Deposit.id == instance_id)
+            delete(Role)
+            .where(Role.role_id == instance_id)
         )
+        session.commit()
+
+    @staticmethod
+    @create_session
+    def delete_all(session=None):
+        session.execute(delete(Role))
         session.commit()

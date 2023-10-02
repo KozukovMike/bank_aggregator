@@ -30,3 +30,11 @@ formatter3 = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(messa
 handler3.setFormatter(formatter3)
 logger_bd.addHandler(handler3)
 logger_bd.propagate = False
+
+logger_server = logging.getLogger('logger_server')
+handler4 = logging.FileHandler('server.log', encoding='utf-8')
+handler4.setLevel(logging.INFO)
+formatter4 = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+handler4.setFormatter(formatter4)
+logger_bd.addHandler(handler4)
+logger_bd.propagate = False

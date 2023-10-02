@@ -1,7 +1,7 @@
 from sqlalchemy import select, update, delete
 from sqlalchemy.exc import IntegrityError
+from models.bd_models import create_session, Credit
 
-from bank.models.bd_models import create_session, Credit
 
 class CRUDCredit:
 
