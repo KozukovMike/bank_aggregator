@@ -1,12 +1,15 @@
 import uvicorn
-from fastapi import FastAPI, Request
+from typing import Annotated
+from fastapi import FastAPI, Request, Form
 from fastapi.templating import Jinja2Templates
+from fastapi.responses import RedirectResponse, HTMLResponse
 from apscheduler.schedulers.background import BackgroundScheduler
 from bd.CRUD_USERS.users import CRUDUser
 from models.bd_models import User, UserRoleAssociation
 from bd.CRUD_USERS.user_role_association import CRUDUserRoleAssociation
 from bd.CRUD_USERS.roles import CRUDRole
 from loggs.loggers import logger_server
+from helpful_functions.password_functions import generate_random_password, hash_password, check_password, is_valid_email
 
 
 app = FastAPI()
@@ -15,11 +18,14 @@ templates = Jinja2Templates(directory='templates')
 
 
 def create_admin() -> None:
-    user = User(
+    admin_password = generate_random_password(20)
+    manager_password = generate_random_password(20)
+    admin = User(
         username="admin",
-        password_hash=''
+        password_hash=admin_password,
+        email='kozukovmisa@gmail.com'
     )
-    CRUDUser.add(instance=user)
+    CRUDUser.add(instance=admin)
     user_id = CRUDUser.get_by_username(instance='admin').user_id
     role_id = CRUDRole.get_by_name(instance_name='admin').role_id
     ura = UserRoleAssociation(
@@ -27,11 +33,12 @@ def create_admin() -> None:
         role_id=role_id,
     )
     CRUDUserRoleAssociation.add(instance=ura)
-    user = User(
+    manager = User(
         username="manager",
-        password_hash=''
+        password_hash=manager_password,
+        email='kozukovmisa1@gmail.com'
     )
-    CRUDUser.add(instance=user)
+    CRUDUser.add(instance=manager)
     user_id = CRUDUser.get_by_username(instance='manager').user_id
     role_id = CRUDRole.get_by_name(instance_name='manager').role_id
     ura = UserRoleAssociation(
@@ -52,14 +59,37 @@ def shutdown_scheduler():
     scheduler.shutdown()
 
 
+@app.get('/')
+async def index():
+    return {'dd': 'dd'}
+
+
 @app.get('/ping')
 async def pong():
     return {'ping': 'pong'}
 
 
-@app.get('/')
-async def root(request: Request):
+@app.get('/login/')
+async def login_page(request: Request):
     return templates.TemplateResponse("login_form.html", {"request": request})
+
+
+@app.post("/login/")
+async def login(username: Annotated[str, Form()], password: Annotated[str, Form()], email: Annotated[str, Form()]):
+    if is_valid_email(email=email):
+        return {'message': 'email is correct'}
+    if username == "1" and password == "1":
+        return {"message": "Успешная аутентификация"}
+    else:
+        return {"message": "Неудачная аутентификация"}
+
+
+# @app.post("/login/")
+# async def login(username: Annotated[str, Form()], password: Annotated[str, Form()]):
+#     if username == "1" and password == "1":
+#         return {"message": "Успешная аутентификация"}
+#     else:
+#         return {"message": "Неудачная аутентификация"}
 
 
 # if __name__ == '__main__':

@@ -58,6 +58,7 @@ class User(Base):
 
     user_id = Column(Integer, primary_key=True)
     username = Column(VARCHAR(255), nullable=False, unique=True)
+    email = Column(VARCHAR(255), nullable=False, unique=True)
     password_hash = Column(VARCHAR(255), nullable=False)
 
 
