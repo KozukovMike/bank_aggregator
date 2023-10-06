@@ -105,6 +105,5 @@ async def sign_in(username: Annotated[str, Form()], password: Annotated[str, For
 #         return {"message": "Неудачная аутентификация"}
 
 
-# if __name__ == '__main__':
-#     uvicorn.run(app='server_fastapi:app', host='0.0.0.0', port=8000,  reload=True)
-
+if __name__ == '__main__':
+    uvicorn.run(app='server_fastapi:app', host='127.0.0.1', port=8000,  reload=True)
