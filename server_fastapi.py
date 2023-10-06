@@ -59,9 +59,9 @@ def shutdown_scheduler():
     scheduler.shutdown()
 
 
-@app.get('/')
-async def index():
-    return {'dd': 'dd'}
+@app.get('/', response_class=HTMLResponse)
+async def welcome_page(request: Request):
+    return templates.TemplateResponse("welcome_page.html", {"request": request})
 
 
 @app.get('/ping')
@@ -69,15 +69,28 @@ async def pong():
     return {'ping': 'pong'}
 
 
-@app.get('/login/')
-async def login_page(request: Request):
-    return templates.TemplateResponse("login_form.html", {"request": request})
+@app.get('/sign_up', response_class=HTMLResponse)
+async def sign_up_age(request: Request):
+    return templates.TemplateResponse("sign_up_form.html", {"request": request})
 
 
-@app.post("/login/")
-async def login(username: Annotated[str, Form()], password: Annotated[str, Form()], email: Annotated[str, Form()]):
+@app.post("/sign_up")
+async def sign_up(username: Annotated[str, Form()], password: Annotated[str, Form()], email: Annotated[str, Form()]):
     if is_valid_email(email=email):
         return {'message': 'email is correct'}
+    if username == "1" and password == "1":
+        return {"message": "Успешная аутентификация"}
+    else:
+        return {"message": "Неудачная аутентификация"}
+
+
+@app.get('/sign_in', response_class=HTMLResponse)
+async def sign_in_age(request: Request):
+    return templates.TemplateResponse("sign_in_form.html", {"request": request})
+
+
+@app.post("/sign_in")
+async def sign_in(username: Annotated[str, Form()], password: Annotated[str, Form()]):
     if username == "1" and password == "1":
         return {"message": "Успешная аутентификация"}
     else:
