@@ -50,3 +50,16 @@ def is_valid_email(email: str) -> bool:
         return True
     else:
         return False
+
+
+def is_valid_password(password) -> bool:
+    """
+    check if a password is valid
+    :param password:
+    :return:
+    """
+    if len(password) < 8:
+        return False
+    if not re.search(r'^(?=.*\d)(?=.*[A-Z])', password):
+        return False
+    return True

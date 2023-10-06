@@ -42,6 +42,17 @@ class CRUDUser:
 
     @staticmethod
     @create_session
+    def get_by_email(instance, session=None):
+        instance = session.execute(
+            select(User)
+            .where(User.email == instance)
+        )
+        instance = instance.first()
+        if instance:
+            return instance[0]
+
+    @staticmethod
+    @create_session
     def all(session=None):
         instances = session.execute(
             select(User)

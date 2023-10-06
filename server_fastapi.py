@@ -9,7 +9,9 @@ from models.bd_models import User, UserRoleAssociation
 from bd.CRUD_USERS.user_role_association import CRUDUserRoleAssociation
 from bd.CRUD_USERS.roles import CRUDRole
 from loggs.loggers import logger_server
-from helpful_functions.password_functions import generate_random_password, hash_password, check_password, is_valid_email
+from helpful_functions.password_functions import (generate_random_password, hash_password, check_password,
+                                                  is_valid_email, is_valid_password)
+from helpful_functions.bd_conn_functions import get_user_from_bd, create_admin, create_manager, create_user
 
 
 app = FastAPI()
@@ -17,40 +19,17 @@ scheduler = BackgroundScheduler()
 templates = Jinja2Templates(directory='templates')
 
 
-def create_admin() -> None:
+def create_main_roles() -> None:
     admin_password = generate_random_password(20)
     manager_password = generate_random_password(20)
-    admin = User(
-        username="admin",
-        password_hash=admin_password,
-        email='kozukovmisa@gmail.com'
-    )
-    CRUDUser.add(instance=admin)
-    user_id = CRUDUser.get_by_username(instance='admin').user_id
-    role_id = CRUDRole.get_by_name(instance_name='admin').role_id
-    ura = UserRoleAssociation(
-        user_id=user_id,
-        role_id=role_id,
-    )
-    CRUDUserRoleAssociation.add(instance=ura)
-    manager = User(
-        username="manager",
-        password_hash=manager_password,
-        email='kozukovmisa1@gmail.com'
-    )
-    CRUDUser.add(instance=manager)
-    user_id = CRUDUser.get_by_username(instance='manager').user_id
-    role_id = CRUDRole.get_by_name(instance_name='manager').role_id
-    ura = UserRoleAssociation(
-        user_id=user_id,
-        role_id=role_id,
-    )
-    CRUDUserRoleAssociation.add(instance=ura)
+    print(manager_password, admin_password)
+    create_admin(password=hash_password(password=admin_password), email='kozukovmisa@gmail.com')
+    create_manager(password=hash_password(password=manager_password), email='kozukovmisa1@gmail.com')
 
 
 @app.on_event("startup")
 def start_scheduler():
-    create_admin()
+    create_main_roles()
     scheduler.start()
 
 
@@ -76,12 +55,21 @@ async def sign_up_age(request: Request):
 
 @app.post("/sign_up")
 async def sign_up(username: Annotated[str, Form()], password: Annotated[str, Form()], email: Annotated[str, Form()]):
-    if is_valid_email(email=email):
-        return {'message': 'email is correct'}
-    if username == "1" and password == "1":
-        return {"message": "Успешная аутентификация"}
-    else:
-        return {"message": "Неудачная аутентификация"}
+    response = {}
+
+    if not is_valid_password(password=password):
+        response['password'] = 'Пароль неправильный. Пароль должен содержать минимум 8 символов, включая цифры и заглавные буквы.'
+    elif not is_valid_email(email=email):
+        response['email'] = 'Email неправильный.'
+    if CRUDUser.get_by_username(instance=username):
+        response['username'] = 'Такой пользователь уже существует.'
+    if CRUDUser.get_by_email(instance=email):
+        response['email'] = 'Этот email уже используется.'
+    if not response:
+        password_hash = hash_password(password=password)
+        create_user(password_hash=password_hash, username=username, email=email)
+        return {'message': 'Успешная регистрация'}
+    return {'errors': response}
 
 
 @app.get('/sign_in', response_class=HTMLResponse)
@@ -91,18 +79,12 @@ async def sign_in_age(request: Request):
 
 @app.post("/sign_in")
 async def sign_in(username: Annotated[str, Form()], password: Annotated[str, Form()]):
-    if username == "1" and password == "1":
-        return {"message": "Успешная аутентификация"}
-    else:
-        return {"message": "Неудачная аутентификация"}
-
-
-# @app.post("/login/")
-# async def login(username: Annotated[str, Form()], password: Annotated[str, Form()]):
-#     if username == "1" and password == "1":
-#         return {"message": "Успешная аутентификация"}
-#     else:
-#         return {"message": "Неудачная аутентификация"}
+    user = get_user_from_bd(username=username)
+    if user is None:
+        return {'message': 'такого пользователя не существует'}
+    if not check_password(entered_password=password, password_hash=user.password_hash):
+        return {'message': 'неверный пароль'}
+    return {'message': 'Успешная аутентификация'}
 
 
 if __name__ == '__main__':
