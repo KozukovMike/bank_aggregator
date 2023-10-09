@@ -1,3 +1,4 @@
+import re
 import bs4
 from bs4 import BeautifulSoup
 from selenium import webdriver
@@ -335,6 +336,10 @@ class Belveb(ParsBank):
                 ParsErrors.write_to_log(e=e, text='parsing.py Belveb.get_credit()')
         return deposits
 
+    @staticmethod
+    def get_insurance() -> List[Insurances]:
+        pass
+
 
 class VTB(ParsBank):
     pass
@@ -389,35 +394,48 @@ class VTB(ParsBank):
             class_name='vtb-button vtb-grid-button vtb-button--light light',
             tag_name='a',
         )
+        links = list(map(lambda x: x.get('href'), links))
         deposits = []
-        for link in links:
+        for link in links[:-1]:
             href = url[:19] + link
+            print(href)
             soup = ParsBank.get_soup_by_url(href)
             try:
-                info = ParsBank.get_data(
-                    soup=soup,
-                    class_name='platon-services-card',
-                    tag_name='div',
-                )
-                info = list(map(lambda x: x.text.strip(), info))
-                if not info:
-                    info = soup.find_all('li')
-                    info = list(map(lambda x: x.text.strip(), info))
-                name = soup.find('div', class_='platon-hero-block-text')
-                if not name:
-                    name = soup.find('div', class_='vtb-hero-default-block-text vtb-link-arrow').find('h1').text
-                else:
-                    name = name.find('h1').text
+                ul_elements = soup.find_all('ul')
+                info = []
+                for ul in ul_elements:
+                    li_elements = ul.find_all('li')
+                    if 4 > len(li_elements) > 1:
+                        for li in li_elements:
+                            info.append(li.text.strip())
+                tr_elements = soup.find_all('tr')
+                text = []
+                for tr in tr_elements:
+                    text.append(tr.text.strip())
+
+                pattern = re.compile(r'[\n\t]+')
+                info += [re.sub(pattern, ' ', item).strip() for item in text]
+                print(soup.find('div', class_='vtb-hero-default-block-text').text)
+                print(info)
                 instance = Deposits(
                     bank='Belveb',
-                    name=name,
+                    name=soup.find('div', class_='vtb-hero-default-block-text').text,
                     info=' '.join(info),
+                    link=href,
                 )
                 deposits.append(instance)
                 logger_done_pars.info(f'Belveb.get_cards() - {instance.name}')
             except Exception as e:
                 ParsErrors.write_to_log(e=e, text='parsing.py Belveb.get_cards()')
-            return deposits
+        return deposits
+
+    @staticmethod
+    def get_insurance() -> List[Insurances]:
+        pass
+
+    @staticmethod
+    def get_cards() -> List[Cards]:
+        url = ''
 
 
-print(VTB.get_credits())
+print(len(VTB.get_deposits()))
