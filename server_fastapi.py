@@ -48,12 +48,17 @@ async def pong():
     return {'ping': 'pong'}
 
 
-@app.get('/sign_up', response_class=HTMLResponse)
-async def sign_up_age(request: Request):
+@app.post('/ping')
+async def pong():
+    return {'ping': 'pong'}
+
+
+@app.get('/sign_up/', response_class=HTMLResponse)
+async def sign_up_(request: Request):
     return templates.TemplateResponse("sign_up_form.html", {"request": request})
 
 
-@app.post("/sign_up")
+@app.post("/sign_up/")
 async def sign_up(username: Annotated[str, Form()], password: Annotated[str, Form()], email: Annotated[str, Form()]):
     response = {}
 
@@ -72,12 +77,12 @@ async def sign_up(username: Annotated[str, Form()], password: Annotated[str, For
     return {'errors': response}
 
 
-@app.get('/sign_in', response_class=HTMLResponse)
-async def sign_in_age(request: Request):
+@app.get('/sign_in/', response_class=HTMLResponse)
+async def sign_in_(request: Request):
     return templates.TemplateResponse("sign_in_form.html", {"request": request})
 
 
-@app.post("/sign_in")
+@app.post("/sign_in/")
 async def sign_in(username: Annotated[str, Form()], password: Annotated[str, Form()]):
     user = get_user_from_bd(username=username)
     if user is None:
@@ -85,6 +90,16 @@ async def sign_in(username: Annotated[str, Form()], password: Annotated[str, For
     if not check_password(entered_password=password, password_hash=user.password_hash):
         return {'message': 'неверный пароль'}
     return {'message': 'Успешная аутентификация'}
+
+
+@app.get('/forgot_password/', response_class=HTMLResponse)
+async def forgot_new_password_(request: Request):
+    return templates.TemplateResponse("forgot_password_form.html", {"request": request})
+
+
+@app.post("/forgot_password/")
+async def forgot_new_password(email: Annotated[str, Form()]):
+    return {'message':  'Новый пароль отправлен на email'}
 
 
 if __name__ == '__main__':
